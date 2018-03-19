@@ -49,40 +49,35 @@ warning('off','all')
 restoredefaultpath
 %home
 
-useGPU = true;
+useGPU = false;
 
 
 addpathsPT% Setup matconvnet path (edit according to the relative address of Matconvnet on your machine)
 
-MeasurementModel=0;
+
 
  %% Inputs
-testSet=[476:500];
-epochT1=80;
-epochT2=40;
-epochT3=135;
+testSet=[76:100];
+epochT1=10;
+epochT2=5;
+epochT3=6;
 
 param.NoiseLevel=Inf;
-param.DownsamplingFactor=16;
-N=320; %
-
-
+param.DownsamplingFactor=5;
+N=512; %
+%% Loading Measurement data
+cd ./Data
 numProj = 720;
 viewsfv = linspace(0,180,numProj+1);
 viewsfv(end) = [];
 viewslv=viewsfv(1:param.DownsamplingFactor:end);
 lowviews=numProj/param.DownsamplingFactor;
-
-if MeasurementModel
-%% Loading Measurement data
-cd ./Data
-
 load ('Sinogramfv.mat')
 
 %% Default operators
 imdb.Ntrue=size(Sinogramfv,4);
-imdb.GToperator=@(x)iradon(x, viewsfv-90, 'linear', 'Ram-Lak', 1, N);%FBP
-imdb.Alv=@(x)iradon(x,viewslv-90,'linear', 'Ram-Lak', 1, N);%FBP
+imdb.GToperator=@(x)iradon(x, viewsfv, 'linear', 'Ram-Lak', 1, N);%FBP
+imdb.Alv=@(x)iradon(x,viewslv,'linear', 'Ram-Lak', 1, N);%FBP
 imdb.H=@(x,views)radon(x,views); %Radon transform
 
 
@@ -92,7 +87,7 @@ if ~(exist('X'))
     X=zeros(N,N,1,imdb.Ntrue);
      for i=1:size(Sinogramfv,4)
       % Image from full view sinogram. Considered as the ground truth (GT).
-      X(:,:,1,i)=imdb.GToperator(Sinogramfv(:,:,1,i));
+      X(:,:,1,i)=imdb.Afv(Sinogramfv(:,:,1,i));
      end
      %saving them for future use
      save('Sinogramfv.mat','X','-append');
@@ -117,39 +112,14 @@ Ywidth=size(Y,2);
 clear Sinogramfv
 cd ../
 
-
-else
-      
-    load('preproc_x16_biomed_even.mat')
-    load('sino_dx16energy.mat')
-    imdb.Ntrue=size(lab_n,4);
-    imdb.GToperator=@(x)iradon(x, viewsfv, 'linear', 'Ram-Lak', 1, N);%FBP
-    imdb.Alv=@(x)iradon(x,viewslv,'linear', 'Ram-Lak', 1, N);%FBP
-    imdb.H=@(x,views)radon(x,views); %Radon transform
-
-  
-    YNorm=sqrt(Energy500_x16);
-    
-    X=lab_n;
-    X2=lab_d;
-    Y=zeros(720,length(viewslv),1,500);
-    
-    Yheight=size(Y,1);
-Ywidth=size(Y,2);
-    
-    
-end
-
-
 %%
 
 
 imdb.noiseCase=logical(1/param.NoiseLevel);
 
 %% Stage wise training 
-for Stage=3
+for Stage=1:3
 
-    clear A B
 param.Stage=Stage;
 recursion=(Stage>1);
 
@@ -161,11 +131,10 @@ train_opts.channel_out=1;
 Addresses=loadNettraining(param);
 
 if ~isempty(Addresses.loadnet)
-netstruct=load(Addresses.loadnet)
+load(Addresses.loadnet)
 % moving it to the CPU version
-net=netstruct.net;
 net = vl_simplenn_move(net, 'cpu') ;
-
+train_opts.net=net;
 end
 
 % The input output pair of the first satge.
@@ -174,15 +143,15 @@ B=X;
 id_tmp  = ones(imdb.Ntrue,1);% Training data tag =1
 id_tmp(testSet,1)=2; % Validation data tag= 2
 
-if Stage>1
+if Stage==2
    % Concatanating input-output pair for stage 2
-    A=cat(4, A, A(:,:,1,find(id_tmp(id_tmp-1==0))));
-    B=cat(4, B, B(:,:,1,find(id_tmp(id_tmp-1==0))));
+    A=cat(4, A, A(:,:,1,id_tmp(id_tmp-1==0)));
+    B=cat(4, B, B(:,:,1,id_tmp(id_tmp-1==0)));
 end
-if Stage>2
+if Stage==3
     % Concatanating input-output pair for stage 2
-    A=cat(4, A, B(:,:,1,find(id_tmp(id_tmp-1==0))));
-    B=cat(4, B, B(:,:,1,find(id_tmp(id_tmp-1==0))));
+    A=cat(4, A, B(:,:,1,id_tmp(id_tmp-1==0)));
+    B=cat(4, B, B(:,:,1,id_tmp(id_tmp-1==0)));
 end  
 
 id_tmp  = ones(size(A,4),1);% Final tag
@@ -207,7 +176,7 @@ imdb.images.Ysize=[Yheight Ywidth];
 imdb.Ynorm=YNorm;
 
 imdb.recursion=recursion;
-imdb.modelPerturbation=1;% Perturbation in the forward model. By default 0 for the measurement data.
+imdb.modelPerturbation=0;% Perturbation in he forward nodel. By default 0 for the measurement data
 imdb.modelPerturbationProb=imdb.modelPerturbation*0.2;%default
 
 imdb.images.set=id_tmp;           % train set : 1 , test set : 2
@@ -216,12 +185,12 @@ imdb.images.orig=single(B);
 
 train_opts.numEpochs =eval(['epochT',num2str(Stage)]) ;
 %Learning rate
-net.meta.trainOpts.learningRate =[ logspace(-2,-3,80) logspace(-3,-3,train_opts.numEpochs-80) ];
+net.meta.trainOpts.learningRate = logspace(-1*(Stage==1)-3*(Stage>3),-3,train_opts.numEpochs) ;
 opt='none';
 % To use gpu
 if useGPU
 	train_opts.useGpu = 'true'; 
-	train_opts.gpus = 1 ;
+	train_opts.gpus = 0 ;
 else
 	train_opts.useGpu = 'false';
 	train_opts.gpus = [] ;
@@ -237,7 +206,6 @@ train_opts.weight='none';
 
 % Export directory
 train_opts.expDir=Addresses.export;
-%train_opts.net=net;
 
 [net, info] = InitializeCNN(train_opts);
 end

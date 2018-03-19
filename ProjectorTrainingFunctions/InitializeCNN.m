@@ -105,9 +105,13 @@ sigma=imdb.sigma;
 for i=1:numel(batch)
     if batch(i)<=imdb.Ntrue
         v=imdb.images.noisy(:,:,:,batch(i));
+<<<<<<< HEAD:cnn_fbpconvnet_noisy.m
+        if rand>imdb.modelPerturbationProb
+=======
         % Adding model perturbation with a probability
         if rand>imdb.modelPerturbationProb
             % X2 from noisy measurements
+>>>>>>> 8fe5c2fb1cbd72a1535299381ed04439ef1334f9:ProjectorTrainingFunctions/InitializeCNN.m
             images(:,:,1,i)=single(v)+ imdb.Afl(sigma(batch(i))*randn(imdb.images.Ysize)) ;
         else
             % X2 from noisy and perturbed view measurements
@@ -151,7 +155,7 @@ if rand > 0.5
     labels=flipud(labels);
     images=flipud(images);
 end
-lowRes = images(:,:,:,:);
-labels(:,:,:,:) = labels(:,:,:,:) - lowRes;
+lowRes = images(:,:,1,:);
+labels(:,:,1,:) = labels(:,:,1,:) - lowRes;
 
 

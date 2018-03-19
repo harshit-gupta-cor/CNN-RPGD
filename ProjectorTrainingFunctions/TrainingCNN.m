@@ -140,32 +140,31 @@ for epoch=start+1:opts.numEpochs
         sigma=imdb.sigma;
         views=imdb.views;
         net_gpu=vl_simplenn_move(net,'gpu');
-        index_vector=find(imdb.images.set(1:imdb.Ntrue,1)==1);
-        indexes=index_vector';
+        index_vector=find(imdb.images.set==1);
         k=0;
         
         % Obtaining X3 for an epoch
-        for i=indexes
+        for i=index_vector
             k=k+1;
-            v(:,:,:)=imdb.images.noisy(:,:,:,i);
+            v=imdb.images.noisy(:,:,:,i);
             
-%             if imdb.noiseCase==1
-%                 if rand>=imdb.modelPerturbationProb%Noise
-%                     v=v+ imdb.Alv(sigma(i)*randn(imdb.images.sinosize));
-%                 else %Perturbation in model
-%                     viewsShift = views + randn(size(views)) * 0.05;
-%                     v= imdb.Alv(imdb.H(v,viewsShift)+  sigma(i)*randn(imdb.images.sinosize));
-%                 end
-%             else
-%                 if rand>=imdb.modelPerturbationProb%Noise
-%                     v=v;
-%                 else %Perturbation in model
-%                     viewsShift = views + randn(size(views)) * 0.05;
-%                     v= imdb.Alv(imdb.H(v,viewsShift));
-%                 end
-%             end
+            if imdb.noiseCase==1
+                if rand>=imdb.modelPerturbationProb%Noise
+                    v=v+ imdb.Alv(sigma(i)*randn(imdb.images.sinosize));
+                else %Perturbation in model
+                    viewsShift = views + randn(size(views)) * 0.05;
+                    v= imdb.Alv(imdb.H(v,viewsShift)+  sigma(i)*randn(imdb.images.sinosize));
+                end
+            else
+                if rand>=imdb.modelPerturbationProb%Noise
+                    v=v;
+                else %Perturbation in model
+                    viewsShift = views + randn(size(views)) * 0.05;
+                    v= imdb.Alv(imdb.H(v,viewsShift));
+                end
+            end
             resIterative=vl_simplenn_fbpconvnet_recursive(net_gpu,gpuArray(single(v))) ;
-            imdb.images.noisy(:,:,:,k+imdb.Ntrue ) =single(v +gather(resIterative(end-1).x));
+            imdb.images.noisy(:,:,1,k+Ntrue ) =single(v +gather(resIterative(end-1).x));
         end
         net_gpu=[];
     end
@@ -217,7 +216,7 @@ for epoch=start+1:opts.numEpochs
     if ~evaluateMode
         fprintf('%s: saving model for epoch %d\n', mfilename, epoch) ;
         tic ;
-        if mod(epoch,5)==1 || (epoch== opts.numEpochs)||mod(epoch,200)==1
+        if mod(epoch,2)==1 || (epoch== opts.numEpochs)||mod(epoch,200)==1
             save(modelPath(epoch), 'net', 'info') ;
         elseif epoch==1
             save(modelPath(epoch), 'net', 'info','opts') ;
@@ -612,7 +611,7 @@ for iter=1:size(im,4)
 snr_rec(iter)=computeRegressedSNR(recTemp(:,:,1,iter),labelsTemp(:,:,1,iter));
 snr_inp(iter)=computeRegressedSNR(imTemp(:,:,1,iter),labelsTemp(:,:,1,iter));
 end
-figure(12); 
+figure(12);
 
 subplot(1,3,1); imagesc(labelsTemp(:,:,1,iter)); colormap(gray); axis off image;title('original');
 subplot(1,3,2); imagesc(imTemp(:,:,1,iter)); colormap(gray); axis off image; title(['Input ', num2str(snr_inp(iter))]);

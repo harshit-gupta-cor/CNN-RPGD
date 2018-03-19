@@ -4,19 +4,16 @@ avg.SNR.x=mean(SNR.xStack,1);
 avg.SNR.z=mean(SNR.zStack,1);
 avg.SNR.xsino=mean(SNR.xsinoStack,1);
 avg.SNR.zsino=mean(SNR.zsinoStack,1);
-avg.SNR.x_end=mean(SNR.xStack_end,1);
-avg.SNR.z_end=mean(SNR.zStack_end,1);
-avg.SNR.xsino_end=mean(SNR.xsinoStack_end,1);
-avg.SNR.zsino_end=mean(SNR.zsinoStack_end,1);
+
 avg.SNR.xFBPconvnet=mean(SNR.xFBPconvnetStack,1);
 avg.SNR.xsinoFBPconvnet= mean(SNR.xsinoFBPconvnetStack,1);
 avg.delta=mean(deltaStack);
 avg.alpha=mean(alphaStack);
-avgRPGD=avg.SNR.x_end;
+avgRPGD=avg.SNR.x(end);
 avgFBP=avg.SNR.x(1);
 avgFBPconvnet=avg.SNR.xFBPconvnet(1);
 
-avgsinoRPGD=avg.SNR.xsino_end;
+avgsinoRPGD=avg.SNR.xsino(end);
 avgsinoFBP=avg.SNR.xsino(1);
 avgsinoFBPconvnet=avg.SNR.xsinoFBPconvnet(1);
 

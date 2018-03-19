@@ -1,17 +1,14 @@
-function [Addresses,net,FBPconvnet]=loadNettesting(downSamplingfactor,SNRinput,NoisePoisson)
+function [Addresses,net,FBPconvnet]=loadNettesting(downSamplingfactor,SNRinput)
 % Load the address to save RPGD result, the address of the projector net and
 % FBPConvnet
-if NoisePoisson
-    Addresses.export = fullfile('./testing_Poisson_result',['x' num2str(downSamplingfactor),'_',num2str(SNRinput),'dB']);  
-else
-Addresses.export = fullfile('./testing_Poisson_result',['x' num2str(downSamplingfactor),'_',num2str(SNRinput),'dB']);  
-end
+Addresses.export = fullfile('./testing_result',['x' num2str(downSamplingfactor),'_',num2str(SNRinput),'dB']);  
 
- netstruct=load('/Users/Harshit/DeepProject/cnn-pgd/training_result-Realdata/x5_InfdB_Stage3/21-Nov-2017/net-epoch-10.mat');
- FBPconvnetStruct=load('/Users/Harshit/DeepProject/cnn-pgd/training_result-Realdata/x5_InfdB_Stage1/20-Nov-2017/net-epoch-80.mat');
+
+% netstruct=load('');
+% FBPconvnetStruct=load('');
 % 
- net=netstruct.net;
-vl_simplenn_move(net, 'cpu') ; 
-FBPconvnet=FBPconvnetStruct.net;   
+% net=netstruct.net;
+ net=0;% vl_simplenn_move(net, 'cpu') ; 
+ FBPconvnet=0;%FBPconvnetStruct.net;   
 % 
 %    
