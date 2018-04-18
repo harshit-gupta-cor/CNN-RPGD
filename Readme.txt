@@ -11,8 +11,7 @@ http://ieeexplore.ieee.org/abstract/document/7949028/
 Readme
 
 1. Before launching CNN-RPGD, kindly install the MatConvNet (http://www.vlfeat.org/matconvnet/) (For the GPU, it needs a different compilation.)
-2. Modify addpathsRPGD and addpathsPT based on the realtive directory paths on your machine.
-    TrainingCTMeasurementModel, RPGDCTMeasurementModel should be edited change the default parameters of RPGD.
+2. Modify addpathsRPGD and addpathsPT based on the realtive directory paths on your machine. TrainingCTMeasurementModel, RPGDCTMeasurementModel should be edited to change the default parameters of RPGD.
 3. The codes TrainingCTMeasurementModel.m is based on GPU computation. Kindly modify it to use it on CPU.
 4. Use TrainingCTMeasurementModel for training the projector. After training, run RPGDCTMeasurementModel to get the result on the test data.
 
