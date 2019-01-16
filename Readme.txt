@@ -2,7 +2,7 @@ CNN-RPGD
 
 [1] H. Gupta, K. H. Jin, H.Q.Nguyen, M.T. McCann, and M. Unser, 'CNN-Based
 Projected Gradient Descent for Consistent Image
-                   Reconstruction', arXiv:1709.01809 [cs.CV], 2017.
+                   Reconstruction', IEEE TMI, 2018.
 https://ieeexplore.ieee.org/abstract/document/8353870
 
 [2]  K. H. Jin, M.T. McCann, E. Froustey, and M. Unser, 'Deep CNN for Inverse problem in Imaging', IEEE Transactions on Image Processing, 2017.
