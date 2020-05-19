@@ -1,4 +1,8 @@
-This repo is in matconvnet. For a python/pytorch based version please refer to https://github.com/PhanHuyThong/Image-Reconstruction-by-CNN-based-PGD/
+This repo is in matconvnet.
+For a python/pytorch based version please refer to https://github.com/PhanHuyThong/Image-Reconstruction-by-CNN-based-PGD/
+
+In that repo the pytorch code is used in training the projector network. This trained network can then be plugged in RPGD scheme which has both python and matlab support. For the matlab case onnx is used to translate the learnt network from pytorch to matlab. The parameters for the projector training and RPGD can be passed on using config file. The forward model that was used in [1] was the radon/iradon of matlab. However, similar forward model can be found in python.
+I highly recommend using the code from that repo.
 
 CNN-RPGD
 
