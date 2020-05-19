@@ -1,3 +1,5 @@
+This repo is in matconvnet. For a python/pytorch based version please refer to https://github.com/PhanHuyThong/Image-Reconstruction-by-CNN-based-PGD/
+
 CNN-RPGD
 
 [1] H. Gupta, K. H. Jin, H.Q.Nguyen, M.T. McCann, and M. Unser, 'CNN-Based Projected Gradient Descent for Consistent Image Reconstruction', IEEE TMI, 2018. https://ieeexplore.ieee.org/abstract/document/8353870
